@@ -4,31 +4,18 @@ from werkzeug.security import check_password_hash
 from . import db, login_manager
 
 
-class Teacher(db.Model):
-    '''Model for the teachers table.'''
+class Student(db.Model):
+    '''Model for the students table.'''
 
-    __tablename__ = 'teachers'
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(128), nullable=False)
-
-    def __repr__(self):
-        return '<Teacher {}>'.format(self.name)
-
-
-class Class(db.Model):
-    '''Model for the classes table.'''
-
-    __tablename__ = 'classes'
+    __tablename__ = 'students'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(128), nullable=False)
-    teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id'), nullable=True)
-
-    teacher = db.relationship(Teacher, backref='classes')
+    school_id = db.Column(db.String(16), nullable=False, unique=True)
+    name_en = db.Column(db.String(128), nullable=True)
+    name_zh = db.Column(db.String(128), nullable=True)
 
     def __repr__(self):
-        return '<Class {}>'.format(self.name)
+        return '<Student "{}">'.format(self.name_en)
 
 
 class User(db.Model, UserMixin):
@@ -37,16 +24,15 @@ class User(db.Model, UserMixin):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
-    school_id = db.Column(db.String(128), nullable=False, unique=True)
-    name = db.Column(db.String(128), nullable=False)
+    # school_id = db.Column(db.String(128), nullable=False, unique=True)
+    # name = db.Column(db.String(128), nullable=False)
     password = db.Column(db.String(128), nullable=False)
-    is_teacher = db.Column(db.Boolean, nullable=False)
-    teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id'), nullable=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=True)
 
-    teacher = db.relationship(Teacher, backref='users')
+    student = db.relationship(Student, backref='users')
 
     def __repr__(self):
-        return '<User {}>'.format(self.name)
+        return '<User #{}>'.format(self.id)
 
     def authenticate(self, password):
         '''Checks if provided password matches stored password.'''
@@ -58,22 +44,22 @@ class User(db.Model, UserMixin):
         return User.query.get(user_id)
 
 
-class Feedback(db.Model):
-    '''Model for the feedbacks table.'''
+class Message(db.Model):
+    '''Model for the messages table.'''
 
-    __tablename__ = 'feedbacks'
+    __tablename__ = 'messages'
 
     id = db.Column(db.Integer, primary_key=True)
-    student_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    class_id = db.Column(db.Integer, db.ForeignKey('classes.id'), nullable=False)
+    author_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
+    recipient_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    is_anonymous = db.Column(db.Boolean, default=False)
+    is_anonymous = db.Column(db.Boolean, nullable=False, default=0)
 
-    student = db.relationship(User, backref='feedbacks')
-    class_ = db.relationship(Class, backref='feedbacks')
+    author = db.relationship(Student, backref='messages')
+    recipient = db.relationship(Student, backref='messages')
 
     def __repr__(self):
-        return '<Feedback #{}>'.format(self.id)
+        return '<Message #{}>'.format(self.id)
 
 
 db.create_all() # Initialize tables using the above configuration
