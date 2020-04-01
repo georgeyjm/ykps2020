@@ -99,21 +99,21 @@ def edit_feedback_page(feedback_id):
     return render_template('edit-feedback.html', current=feedback, classes=classes)
 
 
-@app.route('/feedback/export')
-@login_required
-def export_feedback_page():
-    if not current_user.is_teacher:
-        # Ensure only the correct users are accessing
-        return redirect(url_for('dashboard_page'))
+# @app.route('/feedback/export')
+# @login_required
+# def export_feedback_page():
+#     if not current_user.is_teacher:
+#         # Ensure only the correct users are accessing
+#         return redirect(url_for('dashboard_page'))
     
-    classes = Class.query.filter_by(teacher_id=current_user.teacher.id).all()
+#     classes = Class.query.filter_by(teacher_id=current_user.teacher.id).all()
 
-    if not classes:
-        # No class left to give feedback
-        # TODO: Notify the user about this
-        return redirect(url_for('dashboard_page'))
+#     if not classes:
+#         # No class left to give feedback
+#         # TODO: Notify the user about this
+#         return redirect(url_for('dashboard_page'))
 
-    return render_template('export-feedback.html', classes=classes)
+#     return render_template('export-feedback.html', classes=classes)
 
 
 
@@ -162,24 +162,24 @@ def login():
         return render_template('login.html', login_msg='Incorrect credentials!')
 
 
-@app.route('/match-teacher', methods=['POST'])
-@login_required
-def match_teacher():
-    '''API for matching a teacher user to a teacher.'''
+# @app.route('/match-teacher', methods=['POST'])
+# @login_required
+# def match_teacher():
+#     '''API for matching a teacher user to a teacher.'''
 
-    if not (current_user.is_teacher and current_user.teacher_id == None):
-        # Ensure only the correct users are accessing
-        return redirect(url_for('dashboard_page'))
+#     if not (current_user.is_teacher and current_user.teacher_id == None):
+#         # Ensure only the correct users are accessing
+#         return redirect(url_for('dashboard_page'))
 
-    # Get form data, defaults to empty string
-    teacher_id = request.form.get('teacher-id', '')
+#     # Get form data, defaults to empty string
+#     teacher_id = request.form.get('teacher-id', '')
 
-    # TODO: Data validation
+#     # TODO: Data validation
 
-    # Update user's teacher_id field
-    current_user.teacher_id = teacher_id
-    db.session.commit()
-    return redirect(url_for('dashboard_page'))
+#     # Update user's teacher_id field
+#     current_user.teacher_id = teacher_id
+#     db.session.commit()
+#     return redirect(url_for('dashboard_page'))
 
 
 @app.route('/feedback/delete', methods=['POST'])
@@ -259,48 +259,48 @@ def edit_feedback(feedback_id):
     return redirect(url_for('dashboard_page'))
 
 
-@app.route('/feedback/export', methods=['POST'])
-@login_required
-def export_feedback():
-    if not current_user.is_teacher:
-        # Ensure only the correct users are accessing
-        return redirect(url_for('dashboard_page'))
+# @app.route('/feedback/export', methods=['POST'])
+# @login_required
+# def export_feedback():
+#     if not current_user.is_teacher:
+#         # Ensure only the correct users are accessing
+#         return redirect(url_for('dashboard_page'))
 
-    classes = request.form.getlist('classes')
-    export_format = request.form.get('export-format', '')
+#     classes = request.form.getlist('classes')
+#     export_format = request.form.get('export-format', '')
 
-    if not classes or not export_format in ('excel', 'csv'):
-        # No classes selected or incorrect format
-        # TODO: Notify user about this
-        return redirect(url_for('export_feedback_page'))
+#     if not classes or not export_format in ('excel', 'csv'):
+#         # No classes selected or incorrect format
+#         # TODO: Notify user about this
+#         return redirect(url_for('export_feedback_page'))
     
-    # Get all requested feedbacks
-    df = pd.read_sql(
-        db.session.query(
-            Feedback.class_id,
-            Feedback.student_id,
-            Feedback.content.label('Content'),
-            Feedback.is_anonymous
-        ).filter(Feedback.class_id.in_(classes)).order_by(Feedback.class_id).statement,
-        db.session.bind
-    )
-    # Get the file path and filename
-    filepath, filename = get_export_file(export_format)
+#     # Get all requested feedbacks
+#     df = pd.read_sql(
+#         db.session.query(
+#             Feedback.class_id,
+#             Feedback.student_id,
+#             Feedback.content.label('Content'),
+#             Feedback.is_anonymous
+#         ).filter(Feedback.class_id.in_(classes)).order_by(Feedback.class_id).statement,
+#         db.session.bind
+#     )
+#     # Get the file path and filename
+#     filepath, filename = get_export_file(export_format)
 
-    # Process data frame
-    df['Class'] = df.apply(lambda row: Class.query.get(row['class_id']).name, axis=1)
-    df['Student'] = df.apply(lambda row: 'Anonymous' if row['is_anonymous'] else User.query.get(row['student_id']).name, axis=1)
-    df.drop(columns=['class_id', 'student_id', 'is_anonymous'], inplace=True) # Drop columns
-    df = df[['Class', 'Student', 'Content']] # Reorder columns
+#     # Process data frame
+#     df['Class'] = df.apply(lambda row: Class.query.get(row['class_id']).name, axis=1)
+#     df['Student'] = df.apply(lambda row: 'Anonymous' if row['is_anonymous'] else User.query.get(row['student_id']).name, axis=1)
+#     df.drop(columns=['class_id', 'student_id', 'is_anonymous'], inplace=True) # Drop columns
+#     df = df[['Class', 'Student', 'Content']] # Reorder columns
     
-    # Export data frame to file
-    if export_format == 'excel':
-        df.to_excel(filepath, sheet_name='Feedbacks', index=False)
-    elif export_format == 'csv':
-        with open(filepath, 'w', encoding='utf-8') as f:
-            df.to_csv(f, index=False)
+#     # Export data frame to file
+#     if export_format == 'excel':
+#         df.to_excel(filepath, sheet_name='Feedbacks', index=False)
+#     elif export_format == 'csv':
+#         with open(filepath, 'w', encoding='utf-8') as f:
+#             df.to_csv(f, index=False)
 
-    return send_file(filepath, as_attachment=True, attachment_filename=filename)
+#     return send_file(filepath, as_attachment=True, attachment_filename=filename)
 
 
 
