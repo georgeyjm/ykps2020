@@ -15,18 +15,18 @@
     <link rel='stylesheet' href='{{ url_for("static", filename="styles/main.css") }}'>
   {% endblock %}
 
-  <title>{% block title %}{% endblock %} | Class Surveyor</title>
+  <title>{% block title %}{% endblock %} | YKPS &rsquo;20</title>
 </head>
 
 <body>
 
   <nav class='navbar navbar-fixed-top navbar-light bg-light justify-content-between'>
     <div class='container'>
-      <a class='navbar-brand mb-0 h1' href='/'>Class Surveyor</a>
+      <a class='navbar-brand mb-0 h1' href='/'>YKPS &rsquo;20</a>
       {% if current_user.is_authenticated %}
         <div class='dropdown'>
           <a class='btn dropdown-toggle' id='dropdown-btn' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
-            {{ current_user.name }}
+            {{ current_user.student.name_en }} {{ current_user.student.name_zh }}
           </a>
           <div class='dropdown-menu' aria-labelledby='dropdown-btn'>
             <a class='dropdown-item' href='/logout'>Logout</a>
