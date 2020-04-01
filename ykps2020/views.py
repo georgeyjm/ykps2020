@@ -128,19 +128,16 @@ def login():
     password = request.form.get('password', '')
 
     success_flag = False
-    is_new_teacher = False
 
     if all((username, password)): # Data validation
         # Try fetching user from database
-        user = User.query.filter_by(school_id=username).first()
+        student = Student.query.filter_by(school_id=username).first()
 
-        # If user is already in the database, validate credentials directly
-        if user and user.authenticate(password):
-            success_flag = True
-            is_new_teacher = user.is_teacher and user.teacher_id == None
+        if not student:
+            success_flag = False
 
         # New user trying to log in
-        elif not user:
+        elif not student.user:
             # Authenticate via PowerSchool
             code, name = ykps_auth(username, password)
 
@@ -148,21 +145,19 @@ def login():
                 # User credentials validated, insert into database
                 hashed_password = generate_password_hash(password)
                 is_new_teacher = not re.match(r's\d{5}', username)
-                user = User(school_id=username, name=name, password=hashed_password, is_teacher=is_new_teacher)
+                user = User(student_id=student.id, password=hashed_password)
                 db.session.add(user)
                 db.session.commit()
                 success_flag = True
+        
+        # If user is already in the database, validate credentials directly
+        elif student.user[0].authenticate(password):
+            success_flag = True
 
     if success_flag:
         # User credentials validated, logs in the user
-        login_user(user)
-
-        if is_new_teacher:
-            # Teacher logs in for the first time, requests teacher's ID
-            return redirect(url_for('match_teacher_page'))
-        else:
-            return redirect(url_for('dashboard_page'))
-    
+        login_user(student.user[0])
+        return redirect(url_for('dashboard_page'))
     else:
         return render_template('login.html', login_msg='Incorrect credentials!')
 

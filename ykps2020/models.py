@@ -29,7 +29,7 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(128), nullable=False)
     student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=True)
 
-    student = db.relationship(Student, backref='users')
+    student = db.relationship(Student, backref='user')
 
     def __repr__(self):
         return '<User #{}>'.format(self.id)
@@ -55,8 +55,8 @@ class Message(db.Model):
     content = db.Column(db.Text, nullable=False)
     is_anonymous = db.Column(db.Boolean, nullable=False, default=0)
 
-    author = db.relationship(Student, backref='messages')
-    recipient = db.relationship(Student)
+    author = db.relationship(Student, foreign_keys=[author_id], backref='messages')
+    recipient = db.relationship(Student, foreign_keys=[recipient_id], backref='messages_received')
 
     def __repr__(self):
         return '<Message #{}>'.format(self.id)
