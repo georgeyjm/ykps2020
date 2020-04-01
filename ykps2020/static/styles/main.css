@@ -15,42 +15,42 @@ h1 {
     margin-top: -1.5rem;
 }
 
-/* Feedback Cards */
+/* Message Cards */
 
-.feedback {
+.message {
     vertical-align: top;
     box-shadow: 8px 8px 16px 0px rgba(0, 0, 0, 0.04);
     transition: box-shadow 150ms ease;
 }
 
-.feedback:hover {
+.message:hover {
     box-shadow: 3px 3px 6px 0px rgba(0, 0, 0, 0.08);
 }
 
-.feedback .card-title,
-.feedback .card-text {
+.message .card-title,
+.message .card-text {
     overflow: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
 }
 
-.feedback .card-links-container {
+.message .card-links-container {
     position: absolute;
     bottom: 1rem;
     opacity: 0;
     transition: opacity 150ms ease;
 }
 
-.feedback:hover .card-links-container {
+.message:hover .card-links-container {
     opacity: 1;
 }
 
-.feedback-content.blockquote {
+.message-content.blockquote {
     font-size: 1rem;
 }
 
-.feedback-content.blockquote .blockquote-body,
-.feedback-content.blockquote .blockquote-footer {
+.message-content.blockquote .blockquote-body,
+.message-content.blockquote .blockquote-footer {
     overflow: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;

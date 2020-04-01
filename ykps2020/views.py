@@ -6,11 +6,10 @@ from functools import wraps
 from flask import Response, request, render_template, send_file, redirect, url_for, jsonify
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.security import generate_password_hash
-import pandas as pd
 
 from . import app, db, login_manager
-from .models import Teacher, Class, User, Feedback
-from .helper import ykps_auth, get_export_file
+from .models import Student, User, Message
+from .helper import ykps_auth
 
 
 
@@ -38,29 +37,26 @@ def logout_page():
     return redirect(url_for('login_page'))
 
 
-@app.route('/match-teacher')
-@login_required
-def match_teacher_page():
-    if not (current_user.is_teacher and current_user.teacher_id == None):
-        # Ensure only the correct users are accessing
-        return redirect(url_for('dashboard_page'))
+# @app.route('/match-teacher')
+# @login_required
+# def match_teacher_page():
+#     if not (current_user.is_teacher and current_user.teacher_id == None):
+#         # Ensure only the correct users are accessing
+#         return redirect(url_for('dashboard_page'))
         
-    # Get all teachers who are not yet matched to a user
-    subquery = db.session.query(User.teacher_id).filter(User.teacher_id.isnot(None))
-    query_filter = Teacher.id.notin_(subquery)
-    teachers = Teacher.query.filter(query_filter).all()
-    return render_template('match-teacher.html', teachers=teachers)
+#     # Get all teachers who are not yet matched to a user
+#     subquery = db.session.query(User.teacher_id).filter(User.teacher_id.isnot(None))
+#     query_filter = Teacher.id.notin_(subquery)
+#     teachers = Teacher.query.filter(query_filter).all()
+#     return render_template('match-teacher.html', teachers=teachers)
 
 
 @app.route('/dashboard')
 @login_required
 def dashboard_page():
-    if current_user.is_teacher:
-        classes = Class.query.filter_by(teacher_id=current_user.teacher.id).all()
-        return render_template('teacher-dashboard.html', classes=classes)
-    else:
-        feedbacks = Feedback.query.filter_by(student_id=current_user.id).all()
-        return render_template('student-dashboard.html', feedbacks=feedbacks)
+    # messages = Message.query.filter_by(student_id=current_user.id).all()
+    messages = User.query.get(current_user.id).student.messages
+    return render_template('dashboard.html', messages=messages)
 
 
 @app.route('/feedback/new')

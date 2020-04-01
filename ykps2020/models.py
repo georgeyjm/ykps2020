@@ -56,7 +56,7 @@ class Message(db.Model):
     is_anonymous = db.Column(db.Boolean, nullable=False, default=0)
 
     author = db.relationship(Student, backref='messages')
-    recipient = db.relationship(Student, backref='messages')
+    recipient = db.relationship(Student)
 
     def __repr__(self):
         return '<Message #{}>'.format(self.id)
