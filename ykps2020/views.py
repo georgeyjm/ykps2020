@@ -140,7 +140,6 @@ def login():
             if code == 0:
                 # User credentials validated, insert into database
                 hashed_password = generate_password_hash(password)
-                is_new_teacher = not re.match(r's\d{5}', username)
                 user = User(student_id=student.id, password=hashed_password)
                 db.session.add(user)
                 db.session.commit()
@@ -178,25 +177,21 @@ def login():
 #     return redirect(url_for('dashboard_page'))
 
 
-@app.route('/feedback/delete', methods=['POST'])
+@app.route('/message/delete', methods=['POST'])
 @login_required
-def delete_feedback():
-    '''API for deleting a feedback.'''
-
-    if current_user.is_teacher:
-        # Ensure only the correct users are accessing
-        return jsonify({'code': 2})
+def delete_message():
+    '''API for deleting a message.'''
 
     # Get form data, defaults to empty string
-    feedback_id = request.form.get('id', '')
+    message_id = request.form.get('id', '')
 
     # TODO: Data validation
 
     # Validate data and perform deletion in the database
-    feedback = Feedback.query.filter_by(id=feedback_id) # Cannot use get here
-    if not feedback:
+    message = Message.query.filter_by(id=message_id) # Cannot use get here
+    if not message:
         return jsonify({'code': 1})
-    feedback.delete()
+    message.delete()
     db.session.commit()
     return jsonify({'code': 0})
 
