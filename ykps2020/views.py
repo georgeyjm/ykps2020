@@ -74,25 +74,22 @@ def new_message_page():
     return render_template('new-message.html', students=students)
 
 
-@app.route('/feedback/edit/<feedback_id>')
+@app.route('/message/edit/<message_id>')
 @login_required
-def edit_feedback_page(feedback_id):
-    if current_user.is_teacher:
-        # Ensure only the correct users are accessing
-        return redirect(url_for('dashboard_page'))
+def edit_message_page(message_id):
     
-    feedback = Feedback.query.get(feedback_id)
+    message = Message.query.get(message_id)
 
-    if not feedback or feedback.student_id != current_user.id:
+    if not message or message.author_id != current_user.student.id:
         # Data validation and authentication
         return redirect(url_for('dashboard_page'))
     
-    # Get all classes which the student has no feedback in
-    subquery = db.session.query(Feedback.class_id).filter(Feedback.student_id == current_user.id)
-    query_filter = Class.id.notin_(subquery)
-    classes = Class.query.filter(query_filter).all()
+    # Get all classes which the student has no message in
+    subquery = db.session.query(Message.recipient_id).filter(Message.author_id == current_user.student.id)
+    query_filter = Student.id.notin_(subquery)
+    students = Student.query.filter(query_filter).filter(Student.id != current_user.student.id).all()
 
-    return render_template('edit-feedback.html', current=feedback, classes=classes)
+    return render_template('edit-message.html', current=message, students=students)
 
 
 # @app.route('/feedback/export')
@@ -217,30 +214,27 @@ def new_message():
     return redirect(url_for('dashboard_page'))
 
 
-@app.route('/feedback/edit/<feedback_id>', methods=['POST'])
+@app.route('/message/edit/<message_id>', methods=['POST'])
 @login_required
-def edit_feedback(feedback_id):
-    if current_user.is_teacher:
-        # Ensure only the correct users are accessing
-        return redirect(url_for('dashboard_page'))
-    
-    feedback = Feedback.query.get(feedback_id)
-    feedback_class_id = request.form.get('feedback-class', '')
-    feedback_content = request.form.get('feedback-content', '')
-    feedback_anonymous = request.form.get('feedback-anonymous', 'off')
+def edit_message(message_id):
+
+    message = Message.query.get(message_id)
+    message_recipient_id = request.form.get('message-recipient', '')
+    message_content = request.form.get('message-content', '')
+    message_anonymous = request.form.get('message-anonymous', 'off')
 
     # TODO: Data validation
 
-    if not feedback or feedback.student_id != current_user.id:
+    if not message or message.author_id != current_user.student.id:
         # Data validation and authentication
         return redirect(url_for('dashboard_page'))
     
-    feedback_anonymous = True if feedback_anonymous == 'on' else False
+    message_anonymous = True if message_anonymous == 'on' else False
 
-    # Update feedback
-    feedback.class_id = feedback_class_id
-    feedback.content = feedback_content
-    feedback.is_anonymous = feedback_anonymous
+    # Update message
+    message.recipient_id = message_recipient_id
+    message.content = message_content
+    message.is_anonymous = message_anonymous
     db.session.commit()
 
     return redirect(url_for('dashboard_page'))
