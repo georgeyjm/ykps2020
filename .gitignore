@@ -1,0 +1,13 @@
+# System
+.DS_Store
+
+# Python
+__pycache__
+*.pyc
+
+# Deployment-Related
+instance
+venv
+.vscode
+*.ini
+*.sock

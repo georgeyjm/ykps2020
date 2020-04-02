@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Edit Message{% endblock %}
+
+{% block styles %}
+  {{ super() }}
+{% endblock %}
+{% block scripts %}
+  {{ super() }}
+{% endblock %}
+
+{% block body %}
+  <div class='main-content-container'>
+    <div>
+      <a href='/dashboard' class='head-back-button position-absolute text-secondary'><i class='far fa-angle-left mr-1' aria-hidden='true'></i>Dashboard</a>
+      <h1 class='mb-3'>Edit Message</h1>
+    </div>
+
+    <form action='' method='POST' class='row mt-4'>
+      <div class='col-12 col-md-10 col-lg-8 col-xl-6'>
+        <div class='form-group'>
+          <label for='message-recipient-choice'><strong>Recipient</strong></label>
+          <select class='form-control' name='message-recipient' id='message-recipient-choice'>
+            <option value='{{ current.recipient_id }}' selected>{{ current.recipient.name_en }} {{ current.recipient.name_zh }}</option>
+            {% for student in students %}
+              <option value='{{ student.id }}'>{{ student.name_en }} {{ student.name_zh }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class='form-group'>
+          <label for='message-content-input'><strong>Message</strong></label>
+          <textarea class='form-control' name='message-content' id='message-content-input' rows='6'>{{ current.content }}</textarea>
+        </div>
+        <div class='form-group'>
+          <div class='form-check'>
+            <input class='form-check-input anonymous-check-box far' type='checkbox' name='message-anonymous' id='gridCheck' {% if current.is_anonymous %} checked {% endif %}>
+            <label class='form-check-label' for='gridCheck'>Make this message anonymous</label>
+          </div>
+        </div>
+        <div class='mt-4'>
+          <button type='submit' class='btn btn-primary'>Save Message</button>
+        </div>
+      </div>
+    </form>
+
+  </div>
+{% endblock %}
