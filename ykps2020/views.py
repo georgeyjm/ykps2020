@@ -59,23 +59,19 @@ def dashboard_page():
     return render_template('dashboard.html', messages=messages)
 
 
-@app.route('/feedback/new')
+@app.route('/message/new')
 @login_required
-def new_feedback_page():
-    if current_user.is_teacher:
-        # Ensure only the correct users are accessing
-        return redirect(url_for('dashboard_page'))
-    
+def new_message_page():
     # Get all classes which the student has no feedback in
-    subquery = db.session.query(Feedback.class_id).filter(Feedback.student_id == current_user.id)
-    query_filter = Class.id.notin_(subquery)
-    classes = Class.query.filter(query_filter).all()
-    if not classes:
-        # No class left to give feedback
+    subquery = db.session.query(Message.recipient_id).filter(Message.author_id == current_user.student.id)
+    query_filter = Student.id.notin_(subquery)
+    students = Student.query.filter(query_filter).filter(Student.id != current_user.student.id).all()
+    if not students:
+        # No student left to leave a message
         # TODO: Notify the user about this
         return redirect(url_for('dashboard_page'))
 
-    return render_template('new-feedback.html', classes=classes)
+    return render_template('new-message.html', students=students)
 
 
 @app.route('/feedback/edit/<feedback_id>')
@@ -205,26 +201,22 @@ def delete_feedback():
     return jsonify({'code': 0})
 
 
-@app.route('/feedback/new', methods=['POST'])
+@app.route('/message/new', methods=['POST'])
 @login_required
-def new_feedback():
-    '''API for creating a new feedback.'''
+def new_message():
+    '''API for creating a new message.'''
 
-    if current_user.is_teacher:
-        # Ensure only the correct users are accessing
-        return render_template(url_for('new_feedback_page'))
-    
-    feedback_class_id = request.form.get('feedback-class', '')
-    feedback_content = request.form.get('feedback-content', '')
-    feedback_anonymous = request.form.get('feedback-anonymous', 'off')
+    message_recipient_id = request.form.get('message-recipient', '')
+    message_content = request.form.get('message-content', '')
+    message_anonymous = request.form.get('message-anonymous', 'off')
 
     # TODO: Data validation
 
-    feedback_anonymous = True if feedback_anonymous == 'on' else False
+    message_anonymous = True if message_anonymous == 'on' else False
 
     # Performs database insertion
-    feedback = Feedback(student_id=current_user.id, class_id=feedback_class_id, content=feedback_content, is_anonymous=feedback_anonymous)
-    db.session.add(feedback)
+    message = Message(author_id=current_user.student.id, recipient_id=message_recipient_id, content=message_content, is_anonymous=message_anonymous)
+    db.session.add(message)
     db.session.commit()
 
     return redirect(url_for('dashboard_page'))
