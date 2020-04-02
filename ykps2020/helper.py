@@ -1,9 +1,9 @@
-import os
-from datetime import datetime
-from pathlib import Path
-
 import requests
 from bs4 import BeautifulSoup
+from flask_login import current_user
+
+from . import db
+from .models import Message, Student
 
 
 def ykps_auth(username, password):
@@ -25,3 +25,11 @@ def ykps_auth(username, password):
         name = str(e)
         ret = -1
     return ret, name
+
+
+def get_available_students():
+    '''Get all students the current user has not written a message to.'''
+    subquery = db.session.query(Message.recipient_id).filter(Message.author_id == current_user.student.id)
+    query_filter = Student.id.notin_(subquery)
+    students = Student.query.filter(query_filter).filter(Student.id != current_user.student.id).all()
+    return students

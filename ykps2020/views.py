@@ -9,7 +9,7 @@ from werkzeug.security import generate_password_hash
 
 from . import app, db, login_manager
 from .models import Student, User, Message
-from .helper import ykps_auth
+from .helper import ykps_auth, get_available_students
 
 
 
@@ -48,10 +48,7 @@ def dashboard_page():
 @app.route('/message/new')
 @login_required
 def new_message_page():
-    # Get all students the user has not written a message to
-    subquery = db.session.query(Message.recipient_id).filter(Message.author_id == current_user.student.id)
-    query_filter = Student.id.notin_(subquery)
-    students = Student.query.filter(query_filter).filter(Student.id != current_user.student.id).all()
+    students = get_available_students()
     if not students:
         # No student left to leave a message
         # TODO: Notify the user about this
@@ -63,17 +60,11 @@ def new_message_page():
 @app.route('/message/edit/<message_id>')
 @login_required
 def edit_message_page(message_id):
-    
     message = Message.query.get(message_id)
-
     if not message or message.author_id != current_user.student.id:
         # Data validation and authentication
         return redirect(url_for('dashboard_page'))
-    
-    # Get all students the user has not written a message to
-    subquery = db.session.query(Message.recipient_id).filter(Message.author_id == current_user.student.id)
-    query_filter = Student.id.notin_(subquery)
-    students = Student.query.filter(query_filter).filter(Student.id != current_user.student.id).all()
+    students = get_available_students()
 
     return render_template('edit-message.html', current=message, students=students)
 
