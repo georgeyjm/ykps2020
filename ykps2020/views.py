@@ -9,6 +9,7 @@ from werkzeug.security import generate_password_hash
 
 from . import app, db, login_manager
 from .models import Student, User, Message
+from .forms import LoginForm
 from .helper import ykps_auth, get_available_students
 
 
@@ -27,7 +28,8 @@ def index_page():
 def login_page():
     if current_user.is_authenticated:
         return redirect(url_for('dashboard_page'))
-    return render_template('login.html')
+    form = LoginForm()
+    return render_template('login.html', form=form)
 
 
 @app.route('/logout')
@@ -74,26 +76,24 @@ def edit_message_page(message_id):
 
 @app.route('/login', methods=['POST'])
 def login():
-    '''API for authenticating via the school's system.'''
-
-    # Get form data, defaults to empty string
-    username = request.form.get('username', '')
-    password = request.form.get('password', '')
-
+    '''Process POST request for authenticating a user.'''
     success_flag = False
+    return_msg = 'Invalid credentials!'
 
-    if all((username, password)): # Data validation
+    form = LoginForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+
         # Try fetching user from database
         student = Student.query.filter_by(school_id=username).first()
-
         if not student:
-            success_flag = False
+            return_msg = 'You are not a Y12 student!'
 
         # New user trying to log in
         elif not student.user:
             # Authenticate via PowerSchool
-            code, name = ykps_auth(username, password)
-
+            code, _ = ykps_auth(username, password)
             if code == 0:
                 # User credentials validated, insert into database
                 hashed_password = generate_password_hash(password)
@@ -107,11 +107,11 @@ def login():
             success_flag = True
 
     if success_flag:
-        # User credentials validated, logs in the user
+        # User credentials validated, log in the user
         login_user(student.user[0])
         return redirect(url_for('dashboard_page'))
     else:
-        return render_template('login.html', login_msg='Incorrect credentials!')
+        return render_template('login.html', form=form, login_msg=return_msg)
 
 
 @app.route('/message/delete', methods=['POST'])
