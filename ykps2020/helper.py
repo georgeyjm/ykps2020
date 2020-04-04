@@ -29,7 +29,11 @@ def ykps_auth(username, password):
 
 def get_available_students():
     '''Get all students the current user has not written a message to.'''
+    # Perform database query
     subquery = db.session.query(Message.recipient_id).filter(Message.author_id == current_user.student.id)
     query_filter = Student.id.notin_(subquery)
     students = Student.query.filter(query_filter).filter(Student.id != current_user.student.id).all()
+
+    # Restructure data
+    students = [(student.id, f'{student.name_en} {student.name_zh}') for student in students]
     return students

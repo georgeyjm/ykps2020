@@ -9,7 +9,7 @@ from werkzeug.security import generate_password_hash
 
 from . import app, db, login_manager
 from .models import Student, User, Message
-from .forms import LoginForm
+from .forms import LoginForm, MessageForm
 from .helper import ykps_auth, get_available_students
 
 
@@ -50,13 +50,12 @@ def dashboard_page():
 @app.route('/message/new')
 @login_required
 def new_message_page():
-    students = get_available_students()
-    if not students:
+    form = MessageForm()
+    if not form.recipient_id.choices:
         # No student left to leave a message
         # TODO: Notify the user about this
         return redirect(url_for('dashboard_page'))
-
-    return render_template('new-message.html', students=students)
+    return render_template('new-message.html', form=form)
 
 
 @app.route('/message/edit/<message_id>')
@@ -136,20 +135,17 @@ def delete_message():
 @app.route('/message/new', methods=['POST'])
 @login_required
 def new_message():
-    '''API for creating a new message.'''
+    '''Create a new message in the database.'''
+    form = MessageForm()
+    if form.validate_on_submit():
+        recipient_id = form.recipient_id.data
+        content = form.content.data
+        is_anonymous = form.is_anonymous.data
 
-    message_recipient_id = request.form.get('message-recipient', '')
-    message_content = request.form.get('message-content', '')
-    message_anonymous = request.form.get('message-anonymous', 'off')
-
-    # TODO: Data validation
-
-    message_anonymous = True if message_anonymous == 'on' else False
-
-    # Performs database insertion
-    message = Message(author_id=current_user.student.id, recipient_id=message_recipient_id, content=message_content, is_anonymous=message_anonymous)
-    db.session.add(message)
-    db.session.commit()
+        # Perform database insertion
+        message = Message(author_id=current_user.student.id, recipient_id=recipient_id, content=content, is_anonymous=is_anonymous)
+        db.session.add(message)
+        db.session.commit()
 
     return redirect(url_for('dashboard_page'))
 
