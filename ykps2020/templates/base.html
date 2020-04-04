@@ -6,10 +6,10 @@
   <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
 
   <!-- External Libraries -->
-  <link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css' integrity='sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh' crossorigin='anonymous'>
-  <script src='https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js' integrity='sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=' crossorigin='anonymous'></script>
-  <script src='https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js' integrity='sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6' crossorigin='anonymous'></script>
-  <script src='https://kit.fontawesome.com/a1158c178b.js' crossorigin='anonymous'></script>
+  <link rel='stylesheet' href='http://georgeyu.oss-cn-shanghai.aliyuncs.com/libraries/bootstrap/bootstrap.min.css'>
+  <link rel='stylesheet' href='http://georgeyu.oss-cn-shanghai.aliyuncs.com/libraries/fontawesome/css/all.min.css'>
+  <script src='http://georgeyu.oss-cn-shanghai.aliyuncs.com/libraries/jquery/jquery.min.js'></script>
+  <script src='http://georgeyu.oss-cn-shanghai.aliyuncs.com/libraries/bootstrap/bootstrap.min.js'></script>
   
   {% block styles %}
     <link rel='stylesheet' href='{{ url_for("static", filename="styles/main.css") }}'>
@@ -26,7 +26,7 @@
       {% if current_user.is_authenticated %}
         <div class='dropdown'>
           <a class='btn dropdown-toggle' id='dropdown-btn' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
-            {{ current_user.student.name_en }} {{ current_user.student.name_zh }}
+            {{ current_user.student.get_id_name()[1] }}
           </a>
           <div class='dropdown-menu' aria-labelledby='dropdown-btn'>
             <a class='dropdown-item' href='/logout'>Logout</a>

@@ -16,24 +16,17 @@
     </div>
 
     <form action='' method='POST' class='row mt-4'>
+      {{ form.hidden_tag() }}
       <div class='col-12 col-md-10 col-lg-8 col-xl-6'>
         <div class='form-group'>
-          <label for='message-recipient-choice'><strong>Recipient</strong></label>
-          <select class='form-control' name='message-recipient' id='message-recipient-choice'>
-            <option value='{{ current.recipient_id }}' selected>{{ current.recipient.name_en }} {{ current.recipient.name_zh }}</option>
-            {% for student in students %}
-              <option value='{{ student.id }}'>{{ student.name_en }} {{ student.name_zh }}</option>
-            {% endfor %}
-          </select>
+          {{ form.recipient_id.label }} {{ form.recipient_id(class_='form-control') }}
         </div>
         <div class='form-group'>
-          <label for='message-content-input'><strong>Message</strong></label>
-          <textarea class='form-control' name='message-content' id='message-content-input' rows='6'>{{ current.content }}</textarea>
+          {{ form.content.label }} {{ form.content(class_='form-control', rows='6') }}
         </div>
         <div class='form-group'>
           <div class='form-check'>
-            <input class='form-check-input anonymous-check-box far' type='checkbox' name='message-anonymous' id='gridCheck' {% if current.is_anonymous %} checked {% endif %}>
-            <label class='form-check-label' for='gridCheck'>Make this message anonymous</label>
+            {{ form.is_anonymous(class_='form-check-input') }} {{ form.is_anonymous.label(class_='form-check-label') }}
           </div>
         </div>
         <div class='mt-4'>

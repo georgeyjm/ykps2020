@@ -9,7 +9,8 @@ from werkzeug.security import generate_password_hash
 
 from . import app, db, login_manager
 from .models import Student, User, Message
-from .helper import ykps_auth
+from .forms import LoginForm, MessageForm
+from .helper import ykps_auth, get_available_students
 
 
 
@@ -27,7 +28,8 @@ def index_page():
 def login_page():
     if current_user.is_authenticated:
         return redirect(url_for('dashboard_page'))
-    return render_template('login.html')
+    form = LoginForm()
+    return render_template('login.html', form=form)
 
 
 @app.route('/logout')
@@ -40,7 +42,6 @@ def logout_page():
 @app.route('/dashboard')
 @login_required
 def dashboard_page():
-    # messages = Message.query.filter_by(student_id=current_user.id).all()
     messages = User.query.get(current_user.id).student.messages
     return render_template('dashboard.html', messages=messages)
 
@@ -48,34 +49,31 @@ def dashboard_page():
 @app.route('/message/new')
 @login_required
 def new_message_page():
-    # Get all students the user has not written a message to
-    subquery = db.session.query(Message.recipient_id).filter(Message.author_id == current_user.student.id)
-    query_filter = Student.id.notin_(subquery)
-    students = Student.query.filter(query_filter).filter(Student.id != current_user.student.id).all()
-    if not students:
+    form = MessageForm()
+    if not form.recipient_id.choices:
         # No student left to leave a message
         # TODO: Notify the user about this
         return redirect(url_for('dashboard_page'))
-
-    return render_template('new-message.html', students=students)
+    return render_template('new-message.html', form=form)
 
 
 @app.route('/message/edit/<message_id>')
 @login_required
 def edit_message_page(message_id):
-    
     message = Message.query.get(message_id)
-
+    # Data validation
     if not message or message.author_id != current_user.student.id:
-        # Data validation and authentication
         return redirect(url_for('dashboard_page'))
     
-    # Get all students the user has not written a message to
-    subquery = db.session.query(Message.recipient_id).filter(Message.author_id == current_user.student.id)
-    query_filter = Student.id.notin_(subquery)
-    students = Student.query.filter(query_filter).filter(Student.id != current_user.student.id).all()
+    # Pre-populate form data
+    recipient_info = message.recipient.get_id_name()
+    form = MessageForm()
+    form.recipient_id.choices.insert(0, recipient_info) # TODO: insert at the right position
+    form.recipient_id.default = recipient_info[0]
+    form.content.data = message.content
+    form.is_anonymous.data = message.is_anonymous
 
-    return render_template('edit-message.html', current=message, students=students)
+    return render_template('edit-message.html', form=form)
 
 
 
@@ -83,26 +81,24 @@ def edit_message_page(message_id):
 
 @app.route('/login', methods=['POST'])
 def login():
-    '''API for authenticating via the school's system.'''
-
-    # Get form data, defaults to empty string
-    username = request.form.get('username', '')
-    password = request.form.get('password', '')
-
+    '''Process POST request for authenticating a user.'''
     success_flag = False
+    return_msg = 'Invalid credentials!'
 
-    if all((username, password)): # Data validation
+    form = LoginForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+
         # Try fetching user from database
         student = Student.query.filter_by(school_id=username).first()
-
         if not student:
-            success_flag = False
+            return_msg = 'You are not a Y12 student!'
 
         # New user trying to log in
         elif not student.user:
             # Authenticate via PowerSchool
-            code, name = ykps_auth(username, password)
-
+            code, _ = ykps_auth(username, password)
             if code == 0:
                 # User credentials validated, insert into database
                 hashed_password = generate_password_hash(password)
@@ -116,28 +112,27 @@ def login():
             success_flag = True
 
     if success_flag:
-        # User credentials validated, logs in the user
+        # User credentials validated, log in the user
         login_user(student.user[0])
         return redirect(url_for('dashboard_page'))
     else:
-        return render_template('login.html', login_msg='Incorrect credentials!')
+        return render_template('login.html', form=form, login_msg=return_msg)
 
 
 @app.route('/message/delete', methods=['POST'])
 @login_required
 def delete_message():
-    '''API for deleting a message.'''
-
-    # Get form data, defaults to empty string
+    '''Delete a message from the database.'''
     message_id = request.form.get('id', '')
+    # Data validation
+    if not message_id.isdigit():
+        return jsonify({'code': -1})
 
-    # TODO: Data validation
-
-    # Validate data and perform deletion in the database
-    message = Message.query.filter_by(id=message_id) # Cannot use get here
-    if not message:
-        return jsonify({'code': 1})
-    message.delete()
+    # Further validation and perform data deletion
+    message = Message.query.get(message_id)
+    if not message or message.author_id != current_user.student.id:
+        return jsonify({'code': -1})
+    db.session.delete(message)
     db.session.commit()
     return jsonify({'code': 0})
 
@@ -145,20 +140,18 @@ def delete_message():
 @app.route('/message/new', methods=['POST'])
 @login_required
 def new_message():
-    '''API for creating a new message.'''
-
-    message_recipient_id = request.form.get('message-recipient', '')
-    message_content = request.form.get('message-content', '')
-    message_anonymous = request.form.get('message-anonymous', 'off')
-
-    # TODO: Data validation
-
-    message_anonymous = True if message_anonymous == 'on' else False
-
-    # Performs database insertion
-    message = Message(author_id=current_user.student.id, recipient_id=message_recipient_id, content=message_content, is_anonymous=message_anonymous)
-    db.session.add(message)
-    db.session.commit()
+    '''Create a new message in the database.'''
+    form = MessageForm()
+    if form.validate_on_submit():
+        # Perform database insertion
+        message = Message(
+            author_id=current_user.student.id,
+            recipient_id=form.recipient_id.data,
+            content=form.content.data,
+            is_anonymous=form.is_anonymous.data
+        )
+        db.session.add(message)
+        db.session.commit()
 
     return redirect(url_for('dashboard_page'))
 
@@ -166,25 +159,22 @@ def new_message():
 @app.route('/message/edit/<message_id>', methods=['POST'])
 @login_required
 def edit_message(message_id):
-
+    '''Updates the data of a message in the database.'''
     message = Message.query.get(message_id)
-    message_recipient_id = request.form.get('message-recipient', '')
-    message_content = request.form.get('message-content', '')
-    message_anonymous = request.form.get('message-anonymous', 'off')
-
-    # TODO: Data validation
-
+    # Data validation
     if not message or message.author_id != current_user.student.id:
-        # Data validation and authentication
         return redirect(url_for('dashboard_page'))
     
-    message_anonymous = True if message_anonymous == 'on' else False
-
-    # Update message
-    message.recipient_id = message_recipient_id
-    message.content = message_content
-    message.is_anonymous = message_anonymous
-    db.session.commit()
+    # TODO: This is not elegant enough
+    recipient_info = message.recipient.get_id_name()
+    form = MessageForm()
+    form.recipient_id.choices.insert(0, recipient_info)
+    if form.validate_on_submit():
+        # Update database entry
+        message.recipient_id = form.recipient_id.data
+        message.content = form.content.data
+        message.is_anonymous = form.is_anonymous.data
+        db.session.commit()
 
     return redirect(url_for('dashboard_page'))
 
@@ -194,5 +184,5 @@ def edit_message(message_id):
 
 @login_manager.unauthorized_handler
 def unauthorized_access():
-    '''Redicts unauthorized users to login page.'''
+    '''Redirect unauthorized users to login page.'''
     return redirect(url_for('login_page'))
