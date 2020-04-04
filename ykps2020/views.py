@@ -117,18 +117,18 @@ def login():
 @app.route('/message/delete', methods=['POST'])
 @login_required
 def delete_message():
-    '''API for deleting a message.'''
-
-    # Get form data, defaults to empty string
+    '''Delete a message from the database.'''
     message_id = request.form.get('id', '')
 
-    # TODO: Data validation
+    # Data validation
+    if not message_id.isdigit():
+        return jsonify({'code': -1})
 
-    # Validate data and perform deletion in the database
-    message = Message.query.filter_by(id=message_id) # Cannot use get here
-    if not message:
-        return jsonify({'code': 1})
-    message.delete()
+    # Further validation and perform data deletion
+    message = Message.query.get(message_id)
+    if not message or message.author_id != current_user.student.id:
+        return jsonify({'code': -1})
+    db.session.delete(message)
     db.session.commit()
     return jsonify({'code': 0})
 
