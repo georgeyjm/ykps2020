@@ -34,6 +34,10 @@
         -webkit-line-clamp: 3;
     }
 
+    .message .card-links-container {
+        opacity: 0;
+    }
+
 }
 
 /* Large Devices */

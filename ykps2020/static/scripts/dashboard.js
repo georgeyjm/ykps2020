@@ -15,6 +15,15 @@ $('#confirm-delete-message-button').click(() => {
             $('#delete-message-confirm-modal').modal('hide');
             // Delete corresponding card element
             $(`.card-links-container[data-message-id=${messageId}]`).parent().parent().remove();
+            // Append message if no messages left
+            if ($('.message').length === 0) {
+                $('.main-content-container').find('div.mt-5').remove();
+                $('.main-content-container').append(`
+                  <div class='col-12 col-md-10 col-lg-8 col-xl-6 mt-4 p-0'>
+                    <p class='text-muted'>You haven&rsquo;t drafted any message yet! Click the <strong>&ldquo;Draft New Message&rdquo;</strong> button above to start drafting a message to someone.</p>
+                  </div>
+                `);
+            }
         }
     });
 });

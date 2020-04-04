@@ -8,7 +8,7 @@ h1 {
 
 
 .main-content-container {
-    margin-top: 100px;
+    margin-top: 60px;
 }
 
 .head-back-button {
@@ -37,7 +37,6 @@ h1 {
 .message .card-links-container {
     position: absolute;
     bottom: 1rem;
-    opacity: 0;
     transition: opacity 150ms ease;
 }
 
@@ -71,3 +70,13 @@ h1 {
 .anonymous-check-box:checked + label:before {
     content: '\f21b';
 } */
+
+/* Medium Devices */
+
+@media (min-width: 768px) {
+
+    .main-content-container {
+        margin-top: 100px;
+    }
+
+}

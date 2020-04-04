@@ -6,6 +6,7 @@
 {% endblock %}
 {% block scripts %}
   {{ super() }}
+  <script src='{{ url_for("static", filename="scripts/message.js") }}'></script>
 {% endblock %}
 
 {% block body %}
@@ -13,6 +14,10 @@
     <div>
       <a href='/dashboard' class='head-back-button position-absolute text-secondary'><i class='far fa-angle-left mr-1' aria-hidden='true'></i>Dashboard</a>
       <h1 class='mb-3'>New Message</h1>
+    </div>
+
+    <div class='col-12 col-md-10 col-lg-8 col-xl-6 p-0'>
+      <p class='text-muted'>It is recommened for you to write the message in a different software and paste the message here so as to prevent any potential data loss.</p>
     </div>
 
     <form action='' method='POST' class='row mt-4'>
@@ -27,6 +32,8 @@
         <div class='form-group'>
           <div class='form-check'>
             {{ form.is_anonymous(class_='form-check-input') }} {{ form.is_anonymous.label(class_='form-check-label') }}
+            <br>
+            <a href='#' data-toggle='modal' data-target='#anonymity-modal'><small>Learn More <i class='far fa-angle-right mr-1' aria-hidden='true'></i></small></a>
           </div>
         </div>
         <div class='mt-4'>
@@ -34,6 +41,23 @@
         </div>
       </div>
     </form>
+
+    <div class='modal fade' id='anonymity-modal' tabindex='-1' role='dialog' aria-labelledby='anonymity-label' aria-hidden='true'>
+      <div class='modal-dialog modal-lg' role='document'>
+        <div class='modal-content'>
+          <div class='modal-header'>
+            <h5 class='modal-title' id='anonymity-label'>Message Anonymity</h5>
+            <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+              <span aria-hidden='true'>&times;</span>
+            </button>
+          </div>
+          <div class='modal-body'></div>
+          <div class='modal-footer'>
+            <button type='button' class='btn btn-outline-secondary' data-dismiss='modal'>Done</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
   </div>
 {% endblock %}
