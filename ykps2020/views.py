@@ -42,7 +42,6 @@ def logout_page():
 @app.route('/dashboard')
 @login_required
 def dashboard_page():
-    # messages = Message.query.filter_by(student_id=current_user.id).all()
     messages = User.query.get(current_user.id).student.messages
     return render_template('dashboard.html', messages=messages)
 

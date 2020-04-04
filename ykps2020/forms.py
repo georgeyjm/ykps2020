@@ -22,10 +22,9 @@ class MessageForm(FlaskForm):
         super().__init__(*args, **kwargs)
         self.recipient_id.choices = get_available_students()
 
-    def validate_match1(form, field):
-        if not re.search(r"^[0-9]+:[0-9]+$", field.data):
-            raise ValidationError("Invalid input syntax")
-
-        s1, s2 = form.data.split(":")
-        form.score1 = int(s1)
-        form.score2 = int(s2)
+    # It seems like SQLAlchemy has built-in validation for
+    # foreign key fields, and thus this validation is not needed
+    # def validate_recipient_id(form, field):
+    #     possible_ids = [i for i in zip(*form.recipient_id.choices)][0]
+    #     if field.data not in possible_ids:
+    #         raise ValidationError('Invalid recipient') # Remember to import

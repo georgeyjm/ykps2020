@@ -8,7 +8,6 @@ from .models import Message, Student
 
 def ykps_auth(username, password):
     '''Authenticates the given credentials through Powerschool.'''
-
     url = 'https://powerschool.ykpaoschool.cn/guardian/home.html'
     form_data = {
         'account': username,
