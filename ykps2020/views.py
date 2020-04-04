@@ -62,12 +62,19 @@ def new_message_page():
 @login_required
 def edit_message_page(message_id):
     message = Message.query.get(message_id)
+    # Data validation
     if not message or message.author_id != current_user.student.id:
-        # Data validation and authentication
         return redirect(url_for('dashboard_page'))
-    students = get_available_students()
+    
+    # Pre-populate form data
+    recipient_info = message.recipient.get_id_name()
+    form = MessageForm()
+    form.recipient_id.choices.insert(0, recipient_info) # TODO: insert at the right position
+    form.recipient_id.default = recipient_info[0]
+    form.content.data = message.content
+    form.is_anonymous.data = message.is_anonymous
 
-    return render_template('edit-message.html', current=message, students=students)
+    return render_template('edit-message.html', form=form)
 
 
 
@@ -118,7 +125,6 @@ def login():
 def delete_message():
     '''Delete a message from the database.'''
     message_id = request.form.get('id', '')
-
     # Data validation
     if not message_id.isdigit():
         return jsonify({'code': -1})
@@ -138,12 +144,13 @@ def new_message():
     '''Create a new message in the database.'''
     form = MessageForm()
     if form.validate_on_submit():
-        recipient_id = form.recipient_id.data
-        content = form.content.data
-        is_anonymous = form.is_anonymous.data
-
         # Perform database insertion
-        message = Message(author_id=current_user.student.id, recipient_id=recipient_id, content=content, is_anonymous=is_anonymous)
+        message = Message(
+            author_id=current_user.student.id,
+            recipient_id=form.recipient_id.data,
+            content=form.content.data,
+            is_anonymous=form.is_anonymous.data
+        )
         db.session.add(message)
         db.session.commit()
 
@@ -153,25 +160,22 @@ def new_message():
 @app.route('/message/edit/<message_id>', methods=['POST'])
 @login_required
 def edit_message(message_id):
-
+    '''Updates the data of a message in the database.'''
     message = Message.query.get(message_id)
-    message_recipient_id = request.form.get('message-recipient', '')
-    message_content = request.form.get('message-content', '')
-    message_anonymous = request.form.get('message-anonymous', 'off')
-
-    # TODO: Data validation
-
+    # Data validation
     if not message or message.author_id != current_user.student.id:
-        # Data validation and authentication
         return redirect(url_for('dashboard_page'))
     
-    message_anonymous = True if message_anonymous == 'on' else False
-
-    # Update message
-    message.recipient_id = message_recipient_id
-    message.content = message_content
-    message.is_anonymous = message_anonymous
-    db.session.commit()
+    # TODO: This is not elegant enough
+    recipient_info = message.recipient.get_id_name()
+    form = MessageForm()
+    form.recipient_id.choices.insert(0, recipient_info)
+    if form.validate_on_submit():
+        # Update database entry
+        message.recipient_id = form.recipient_id.data
+        message.content = form.content.data
+        message.is_anonymous = form.is_anonymous.data
+        db.session.commit()
 
     return redirect(url_for('dashboard_page'))
 
@@ -181,5 +185,5 @@ def edit_message(message_id):
 
 @login_manager.unauthorized_handler
 def unauthorized_access():
-    '''Redicts unauthorized users to login page.'''
+    '''Redirect unauthorized users to login page.'''
     return redirect(url_for('login_page'))

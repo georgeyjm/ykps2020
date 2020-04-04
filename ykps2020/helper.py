@@ -35,5 +35,5 @@ def get_available_students():
     students = Student.query.filter(query_filter).filter(Student.id != current_user.student.id).all()
 
     # Restructure data
-    students = [(student.id, f'{student.name_en} {student.name_zh}') for student in students]
+    students = [student.get_id_name() for student in students]
     return students

@@ -16,6 +16,10 @@ class Student(db.Model):
 
     def __repr__(self):
         return '<Student "{}">'.format(self.name_en)
+    
+    def get_id_name(self):
+        '''Returns a tuple containing the ID and the bilingual name of the student.'''
+        return self.id, f'{self.name_en} {self.name_zh}'
 
 
 class User(db.Model, UserMixin):
