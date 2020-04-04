@@ -6,6 +6,7 @@
 {% endblock %}
 {% block scripts %}
   {{ super() }}
+  <script src='{{ url_for("static", filename="scripts/message.js") }}'></script>
 {% endblock %}
 
 {% block body %}
@@ -46,24 +47,7 @@
               <span aria-hidden='true'>&times;</span>
             </button>
           </div>
-          <div class='modal-body'>
-            <p>We promise that no one&mdash;including members of the Grad Book team&mdash;can identity the author of any message that is anonymous. Therefore, rest assured that your anonymous messages will be kept anonymous forever unless you decide to reveal it some point in the future.</p>
-            <button class='btn btn-outline-secondary' type='button' data-toggle='collapse' data-target='#technical-details-collapse' aria-expanded='false' aria-controls='technical-details-collapse'>
-              Read about technical details
-            </button>
-            <div class='collapse' id='technical-details-collapse'>
-              <div class='card card-body'>
-                <p>The anonymity of messages is guaranteed not only by the moral standards of our team members, but also by the implementation of the anonymous system, and more specifically, <strong><em>hash functions</em></strong>.</p>
-                <p>A hash function is a function which takes a certain input and outputs an obfuscated and seemingly random string of characters based on that input. As an example, below are a few input-output pairs using the hash function <code>MD5</code>:</p>
-                <pre class='ml-0 ml-lg-4'><code>MD5('ykps') = '9af8d31519204e2ecf1648de309d4c0a'
-MD5('2020') = '7b7a53e239400a13bd6be6c91c4f6c4e'
-MD5('2021') = '05a5cf06982ba7892ed2a6d38fe832d6'</code></pre>
-                <p>While it seems like the output of a hash function is random, it is actually not: a hash function is a completely deterministic function which follows a strict algorithm to generate the output using the input. That is to say, the same input will always produce the same output when hashed using the same hash function. Yet, it is worth pointing out that the hash function being used by us is input-sensitive; in other words, a tiny change in the input will result in a dramatically difference output.</p>
-                <p>But that&rsquo;s nothing special, all deterministic functions have this property. What makes a hash function special is its <strong><em>irreversibility</em></strong> property: given an input, we can easily hash it to produce the output; yet, given a hashed string, it is nearly impossible to find the corresponding input.</p>
-                <p>The anonymous system is built exactly on top of these properties. If you decide to make one of your messages anonymous, then your student ID will no longer be stored as the author of that message; instead, a hashed version of your student ID will be stored. Therefore, due to the sensitivity and irreversibility of the hash function, it is impossible to deduce the author based on that hashed string. Moreover, when you want to retrieve all the messages you have written, the app can compare your hashed student ID against the entries stored, and due to the deterministic property, will be able to find exactly which messages are written by you.</p>
-              </div>
-            </div>
-          </div>
+          <div class='modal-body'></div>
           <div class='modal-footer'>
             <button type='button' class='btn btn-outline-secondary' data-dismiss='modal'>Done</button>
           </div>
