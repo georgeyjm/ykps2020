@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SelectField, BooleanField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Length
 from wtforms.widgets import TextArea
 
 from .helper import get_available_students
@@ -15,7 +15,7 @@ class LoginForm(FlaskForm):
 class MessageForm(FlaskForm):
 
     recipient_id = SelectField('<strong>Recipient</strong>', coerce=int, validators=[DataRequired()])
-    content = StringField('<strong>Content</strong>', widget=TextArea(), validators=[DataRequired()])
+    content = StringField('<strong>Content</strong>', widget=TextArea(), validators=[DataRequired(), Length(max=1000)], render_kw={'maxlength': '1000'})
     is_anonymous = BooleanField('Make this message anonymous')
 
     def __init__(self, *args, **kwargs):
