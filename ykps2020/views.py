@@ -7,7 +7,7 @@ from flask import Response, request, render_template, send_file, redirect, url_f
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.security import generate_password_hash
 
-from . import app, db, login_manager
+from . import app, db, login_manager, cache
 from .models import Student, User, Message
 from .forms import LoginForm, MessageForm
 from .helper import ykps_auth, get_available_students
@@ -17,11 +17,9 @@ from .helper import ykps_auth, get_available_students
 #################### Web Pages ####################
 
 @app.route('/')
+@cache.cached(timeout=3600)
 def index_page():
-    if current_user.is_authenticated:
-        return redirect(url_for('dashboard_page'))
-    else:
-        return redirect(url_for('login_page'))
+    return render_template('index.html')
 
 
 @app.route('/login')

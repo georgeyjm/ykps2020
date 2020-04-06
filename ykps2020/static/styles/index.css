@@ -1,0 +1,13 @@
+body {
+    background: #f8f9fa;
+}
+
+#main-content-container {
+    margin-top: calc(50vh - 230px);
+}
+
+.hero-logo.logo {
+    margin: 0 auto;
+    width: calc(60px * 1000 / 163.861);
+    height: 60px;
+}
