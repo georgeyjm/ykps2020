@@ -19,11 +19,14 @@
         {% for message in messages %}
           <div class='message card d-inline-block mb-4'>
             <div class='card-body'>
-              <h5 class='card-title'>{{ message.recipient.name_en }} {{ message.recipient.name_zh }}</h5>
+              <h5 class='card-title'>{{ message.recipient.get_id_name()[1] }}</h5>
               <p class='card-text'>{{ message.content }}</p>
-              <div class='card-links-container' data-message-id='{{ message.id }}' data-message-recipient='{{ message.recipient.name_en }} {{ message.recipient.name_zh }}'>
+              <div class='card-links-container' data-message-id='{{ message.id }}' data-message-recipient='{{ message.recipient.get_id_name()[1] }}'>
                 <a href='/message/edit/{{ message.id }}' class='card-link text-secondary'><i class='far fa-edit mr-2' aria-hidden='true'></i>Edit</a>
-                <a href='#' class='card-link text-danger' data-toggle='modal' data-target='#delete-message-confirm-modal'><i class='far fa-trash-alt mr-2' aria-hidden='true'></i>Delete</a>
+                <a href='#' class='card-link text-danger ml-3 ml-lg-2 ml-xl-3' data-toggle='modal' data-target='#delete-message-confirm-modal'><i class='far fa-trash-alt mr-2' aria-hidden='true'></i>Delete</a>
+                {% if message.is_anonymous %}
+                <span class='anonymous-icon' data-toggle='tooltip' data-placement='top' title='Anonymous Message'><i class='far fa-mask' aria-hidden='false'></i></span>
+                {% endif %}
               </div>
             </div>
           </div>

@@ -27,3 +27,6 @@ $('#confirm-delete-message-button').click(() => {
         }
     });
 });
+
+$('[data-toggle="tooltip"]').tooltip();
+  
