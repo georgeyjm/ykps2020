@@ -1,3 +1,43 @@
+/* Message Cards */
+
+.message {
+    vertical-align: top;
+    box-shadow: 8px 8px 16px 0px rgba(0, 0, 0, 0.04);
+    transition: box-shadow 150ms ease;
+}
+
+.message:hover {
+    box-shadow: 3px 3px 6px 0px rgba(0, 0, 0, 0.08);
+}
+
+.message .card-title,
+.message .card-text {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+}
+
+.message .card-links-container {
+    position: absolute;
+    bottom: 1rem;
+    width: calc(100% - 2.5rem);
+}
+
+.message .card-links-container .card-link {
+    transition: opacity 150ms ease;
+}
+
+.message:hover .card-links-container .card-link {
+    opacity: 1;
+}
+
+.message .card-links-container .anonymous-icon {
+    position: absolute;
+    right: 0;
+    color: #666;
+}
+
+
 /* Extra Small Devices */
 
 .message {
@@ -34,7 +74,7 @@
         -webkit-line-clamp: 3;
     }
 
-    .message .card-links-container {
+    .message .card-links-container .card-link {
         opacity: 0;
     }
 

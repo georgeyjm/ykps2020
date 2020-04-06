@@ -29,6 +29,7 @@
   <link rel='stylesheet' href='https://georgeyu.oss-cn-shanghai.aliyuncs.com/libraries/bootstrap/bootstrap.min.css'>
   <link rel='stylesheet' href='https://georgeyu.oss-cn-shanghai.aliyuncs.com/libraries/fontawesome/css/all.min.css'>
   <script src='https://georgeyu.oss-cn-shanghai.aliyuncs.com/libraries/jquery/jquery.min.js'></script>
+  <script src='https://georgeyu.oss-cn-shanghai.aliyuncs.com/libraries/popper/popper.min.js'></script>
   <script src='https://georgeyu.oss-cn-shanghai.aliyuncs.com/libraries/bootstrap/bootstrap.min.js'></script>
   
   {% block styles %}
@@ -40,23 +41,26 @@
 
 <body>
 
-  <nav class='navbar navbar-fixed-top navbar-light bg-light justify-content-between'>
-    <div class='container nav-content-container pr-0'>
-      <a class='navbar-brand mb-0 logo' href='/'></a>
-      {% if current_user.is_authenticated %}
-        <div class='dropdown'>
-          <a class='btn dropdown-toggle' id='dropdown-btn' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
-            {{ current_user.student.get_id_name()[1] }}
-          </a>
-          <div class='dropdown-menu' aria-labelledby='dropdown-btn'>
-            <a class='dropdown-item' href='/logout'>Logout</a>
+  {% block nav %}
+    <nav class='navbar navbar-fixed-top navbar-light bg-light justify-content-between'>
+      <div class='container nav-content-container pr-0'>
+        <a class='navbar-brand mb-0 logo' href='/'></a>
+        {% if current_user.is_authenticated %}
+          <div class='dropdown'>
+            <a class='btn dropdown-toggle' id='dropdown-btn' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
+              {{ current_user.student.get_id_name()[1] }}
+            </a>
+            <div class='dropdown-menu' aria-labelledby='dropdown-btn'>
+              <a class='dropdown-item' href='/dashboard'>Dashboard</a>
+              <a class='dropdown-item text-danger' href='/logout'>Logout</a>
+            </div>
           </div>
-        </div>
-      {% else %}
-        <a href='/login' class='btn'>Login</a>
-      {% endif %}
-    </div>
-  </nav>
+        {% else %}
+          <a href='/login' class='btn'>Login</a>
+        {% endif %}
+      </div>
+    </nav>
+  {% endblock %}
 
   <div class='container'>
     {% block body %}{% endblock %}
