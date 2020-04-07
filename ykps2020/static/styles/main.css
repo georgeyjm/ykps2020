@@ -16,32 +16,16 @@ h1 {
 }
 
 .logo {
-    background: url(/static/misc/logo.svg);
+    background-image: url(/static/misc/logo-compact.svg);
     background-position: center center;
     background-repeat: no-repeat;
     background-size: contain;
 }
 
 .navbar-brand.logo {
-    width: calc(25px * 1000 / 163.861);
+    width: calc(25px * 2.07361);
     height: 25px;
 }
-
-
-/* .anonymous-check-box {
-    display:none;
-}
-
-.anonymous-check-box + label:before {
-    font-family: FontAwesome;
-    display: inline-block;
-    margin-right: 1.25rem;
-    content: '\f21b';
-}
-
-.anonymous-check-box:checked + label:before {
-    content: '\f21b';
-} */
 
 
 /* (Only) Extra Small Devices */
@@ -60,6 +44,15 @@ h1 {
 
     .main-content-container {
         margin-top: 100px;
+    }
+
+    .logo {
+        background-image: url(/static/misc/logo.svg);
+    }
+
+    .navbar-brand.logo {
+        width: calc(25px * 6.10277);
+        height: 25px;
     }
 
 }
