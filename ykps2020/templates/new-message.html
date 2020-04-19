@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base.min.html' %}
 {% block title %}New Message{% endblock %}
 
 {% block styles %}
@@ -6,7 +6,7 @@
 {% endblock %}
 {% block scripts %}
   {{ super() }}
-  <script src='{{ url_for("static", filename="scripts/message.js") }}'></script>
+  <script src='{{ url_for("static", filename="scripts/message.min.js") }}'></script>
 {% endblock %}
 
 {% block body %}

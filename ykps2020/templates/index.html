@@ -1,9 +1,9 @@
-{% extends 'base.html' %}
+{% extends 'base.min.html' %}
 {% block title %}Index{% endblock %}
 
 {% block styles %}
   {{ super() }}
-  <link rel='stylesheet' href='{{ url_for("static", filename="styles/index.css") }}'>
+  <link rel='stylesheet' href='{{ url_for("static", filename="styles/index.min.css") }}'>
 {% endblock %}
 {% block scripts %}
   {{ super() }}

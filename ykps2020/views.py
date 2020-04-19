@@ -19,7 +19,7 @@ from .helper import ykps_auth, get_available_students
 @app.route('/')
 @cache.cached(timeout=3600)
 def index_page():
-    return render_template('index.html')
+    return render_template('index.min.html')
 
 
 @app.route('/login')
@@ -27,7 +27,7 @@ def login_page():
     if current_user.is_authenticated:
         return redirect(url_for('dashboard_page'))
     form = LoginForm()
-    return render_template('login.html', form=form)
+    return render_template('login.min.html', form=form)
 
 
 @app.route('/logout')
@@ -41,7 +41,7 @@ def logout_page():
 @login_required
 def dashboard_page():
     messages = User.query.get(current_user.id).student.messages
-    return render_template('dashboard.html', messages=messages)
+    return render_template('dashboard.min.html', messages=messages)
 
 
 @app.route('/message/new')
@@ -52,7 +52,7 @@ def new_message_page():
         # No student left to leave a message
         # TODO: Notify the user about this
         return redirect(url_for('dashboard_page'))
-    return render_template('new-message.html', form=form)
+    return render_template('new-message.min.html', form=form)
 
 
 @app.route('/message/edit/<message_id>')
@@ -71,7 +71,7 @@ def edit_message_page(message_id):
     form.content.data = message.content
     form.is_anonymous.data = message.is_anonymous
 
-    return render_template('edit-message.html', form=form)
+    return render_template('edit-message.min.html', form=form)
 
 
 
@@ -114,7 +114,7 @@ def login():
         login_user(student.user[0])
         return redirect(url_for('dashboard_page'))
     else:
-        return render_template('login.html', form=form, login_msg=return_msg)
+        return render_template('login.min.html', form=form, login_msg=return_msg)
 
 
 @app.route('/message/delete', methods=['POST'])
