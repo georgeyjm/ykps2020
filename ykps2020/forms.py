@@ -15,7 +15,7 @@ class LoginForm(FlaskForm):
 class MessageForm(FlaskForm):
 
     recipient_id = SelectField('<strong>Recipient</strong>', coerce=int, validators=[DataRequired()])
-    content = StringField('<strong>Content</strong>', widget=TextArea(), validators=[DataRequired(), Length(max=1000)], render_kw={'maxlength': '1000'})
+    content = StringField('<strong>Content</strong>', widget=TextArea(), validators=[DataRequired(), Length(max=2000)], render_kw={'maxlength': '2000'})
     is_anonymous = BooleanField('Make this message anonymous')
 
     def __init__(self, *args, **kwargs):
