@@ -10,7 +10,7 @@ from werkzeug.security import generate_password_hash
 from . import app, db, login_manager, cache
 from .models import Student, User, Message
 from .forms import LoginForm, MessageForm
-from .helper import ykps_auth, get_available_students
+from .helper import ykps_auth, record_change
 
 
 
@@ -131,6 +131,7 @@ def delete_message():
     if not message or message.author_id != current_user.student.id:
         return jsonify({'code': -1})
     db.session.delete(message)
+    record_change(message_id, 'delete')
     db.session.commit()
     return jsonify({'code': 0})
 
@@ -150,6 +151,7 @@ def new_message():
         )
         db.session.add(message)
         db.session.commit()
+        record_change(message.id, 'new', commit=True)
 
     return redirect(url_for('dashboard_page'))
 
@@ -172,6 +174,7 @@ def edit_message(message_id):
         message.recipient_id = form.recipient_id.data
         message.content = form.content.data
         message.is_anonymous = form.is_anonymous.data
+        record_change(message_id, 'edit')
         db.session.commit()
 
     return redirect(url_for('dashboard_page'))

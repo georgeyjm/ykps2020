@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 from flask_login import current_user
 
 from . import db
-from .models import Message, Student
+from .models import Message, Student, Change
 
 
 def ykps_auth(username, password):
@@ -27,7 +27,7 @@ def ykps_auth(username, password):
 
 
 def get_available_students():
-    '''Get all students the current user has not written a message to.'''
+    '''(NOT USED) Get all students the current user has not written a message to.'''
     # Perform database query
     subquery = db.session.query(Message.recipient_id).filter(Message.author_id == current_user.student.id)
     query_filter = Student.id.notin_(subquery)
@@ -36,3 +36,13 @@ def get_available_students():
     # Restructure data
     students = [student.get_id_name() for student in students]
     return students
+
+
+def record_change(message_id, change_type, commit=False):
+    '''Record a change in the status of a message.'''
+    if change_type not in ('new', 'delete', 'edit'):
+        return -1
+    change = Change(message_id=message_id, change_type=change_type)
+    db.session.add(change)
+    if commit:
+        db.session.commit()

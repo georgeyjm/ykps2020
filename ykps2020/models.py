@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask_login import UserMixin
 from werkzeug.security import check_password_hash
 
@@ -64,6 +66,21 @@ class Message(db.Model):
 
     def __repr__(self):
         return '<Message #{}>'.format(self.id)
+
+
+class Change(db.Model):
+    '''Model for the changes table.'''
+
+    __tablename__ = 'changes'
+
+    id = db.Column(db.Integer, primary_key=True)
+    change_type = db.Column(db.String(16), nullable=False)
+    message_id = db.Column(db.Integer, nullable=False)
+    changed_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+
+
+    def __repr__(self):
+        return '<Change #{}>'.format(self.id)
 
 
 db.create_all() # Initialize tables using the above configuration
